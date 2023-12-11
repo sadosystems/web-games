@@ -54,8 +54,8 @@ def name_at_cordinate(x, y):
     return squares_names[x + y * GRID_Y]
 
 # Main player behaviour
-colored_squares = load_json('data')
-squares_names = load_json('blame')
+colored_squares = load_json('data/data')
+squares_names = load_json('data/blame')
 
 players = {}
 
@@ -98,9 +98,9 @@ def color_square(data):
     index = x + y * GRID_Y
     squares_names[index] = blame
     colored_squares[index] = color
-    with open('data.json', 'w') as file:
+    with open('data/data.json', 'w') as file:
         json.dump(colored_squares, file)
-    with open('blame.json', 'w') as file:
+    with open('data/blame.json', 'w') as file:
         json.dump(squares_names, file)
 
     socketio.emit('update_local_squares', {'color': color, 'x':x, 'y':y})
@@ -136,12 +136,6 @@ def color_change(data):
     else:
         fg_color = '#ffffff'  # white
     players[player_id]['face_color'] = fg_color
-    # for p_id, p_data in players.items():
-    #     visible_squares = {
-    #         k: v for k, v in colored_squares.items() 
-    #         if abs(v['x'] - p_data['x']) <= RADIUS_WIDTH and 
-    #            abs(v['y'] - p_data['y']) <= RADIUS_HEIGHT
-    #     }
     socketio.emit('update_positions', {'players':players}, to=player_id)
 
 @socketio.on('name_change')
