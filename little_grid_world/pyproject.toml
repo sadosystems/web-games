@@ -2,7 +2,7 @@
 name = "little_grid_world"
 version = "0.0.1"
 description = ""
-authors = ["william.murray <william.murray@automotivepower.com>"]
+authors = ["sado.systems <sadosystemz@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "3.11.1"
