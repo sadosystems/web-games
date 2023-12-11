@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Little Grid World</title>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.js"></script>
+    <style>
+    html, body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+    .modal {
+    display: none; /* Hidden by default */
+    position: fixed; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    background-color: rgba(0, 0, 0, 0.4); /* Background with transparency */
+    }
+
+    .modal-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 20px;
+        background-color: #fff;
+        width: 300px; /* Adjust width as needed */
+        text-align: center;
+        border-radius: 8px;
+    }
+
+    input#usernameInput {
+        width: calc(100% - 22px);
+        padding: 10px;
+        margin-bottom: 10px; /* Space between the input and the button */
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+
+    #gameCanvas {
+        width: 100vw;
+        height: 100vh;
+        background-color: rgb(64, 70, 81); 
+    }
+    #gridCanvas {
+        mix-blend-mode: color-burn;
+        background-color: transparent;
+    }
+    .color-picker-container {
+        position: absolute;
+        top: 10px; /* Adjust as necessary */
+        left: 2%; /* Centers the container horizontally */
+        transform: translateX(-50%); /* Fine-tunes the centering */
+        z-index: 1000; /* Ensures the color picker is displayed above other elements */
+
+    }
+        .color-picker {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 35px;
+        height: 35px;
+        border: white;
+        border-radius: 100%;
+        cursor: pointer;
+        outline: none;
+    }
+    .color-picker::-webkit-color-swatch-wrapper {
+        padding: 0;
+    }
+
+    .color-picker::-webkit-color-swatch {
+        border: none;
+        border-radius: 50%;
+    }
+
+    .color-picker::-moz-color-swatch-wrapper {
+        padding: 0;
+    }
+
+    .color-picker::-moz-color-swatch {
+        border: none;
+        border-radius: 50%;
+    }
+    </style>
+</head>
+<body>
+    <svg id="backgroundCanvas" width="100%" height="100%" style="position: absolute; z-index: 0;"></svg>
+    <svg id="gameCanvas" width="100%" height="100%" style="position: absolute; z-index: 1;"></svg>
+    <svg id="gridCanvas" width="100%" height="100%" style="position: absolute; z-index: 2;"></svg>
+    <div id="colorpicker" class="color-picker-container">
+        <input type="color" id="colorPicker" name="color" class = "color-picker" value="#ff0000">
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const socket = io.connect(location.origin);
+            const svgCanvas = document.getElementById('gameCanvas');
+            const gridSize = 95;
+
+            let playerId = localStorage.getItem('playerId');
+
+            if (!playerId) {
+                playerId = Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('playerId', playerId);
+            }
+
+            // Function to draw the grid
+            function drawFullGrid() {
+                const gridCanvas = document.getElementById('gridCanvas'); // Adjust the ID as per your HTML
+                const gridSize = 95;
+                const totalGridSize = 100; // Assuming a 100x100 grid
+
+                let docFrag = document.createDocumentFragment();
+                
+                // Drawing vertical lines
+                for (let i = 0; i <= totalGridSize; i++) {
+                    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                    line.setAttribute("x1", i * gridSize);
+                    line.setAttribute("y1", 0);
+                    line.setAttribute("x2", i * gridSize);
+                    line.setAttribute("y2", totalGridSize * gridSize);
+                    line.setAttribute("stroke", '#95a7c7');
+                    line.setAttribute("stroke-width", "3");
+                    docFrag.appendChild(line);
+                }
+
+                // Drawing horizontal lines
+                for (let i = 0; i <= totalGridSize; i++) {
+                    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                    line.setAttribute("x1", 0);
+                    line.setAttribute("y1", i * gridSize);
+                    line.setAttribute("x2", totalGridSize * gridSize);
+                    line.setAttribute("y2", i * gridSize);
+                    line.setAttribute("stroke", '#95a7c7');
+                    line.setAttribute("stroke-width", "3");
+                    docFrag.appendChild(line);
+                }
+
+                // Appending the lines to the grid-specific SVG canvas
+                gridCanvas.appendChild(docFrag);
+            }
+
+            drawFullGrid();
+            // Call drawGrid when the window is resized
+            function setDynamicViewBox() {
+                const gridCanvas = document.getElementById('gridCanvas');
+                const gameCanvas = document.getElementById('gameCanvas');
+
+                // Get the window width and height
+                const width = window.innerWidth;
+                const height = window.innerHeight;
+
+                // You might want to adjust these calculations to fit your specific needs
+                const viewBoxWidth = Math.min(width, height) * (10 / gridSize);
+                const viewBoxHeight = Math.min(width, height) * (10 / gridSize);
+
+                // Set the viewBox attribute for both canvases
+                gridCanvas.setAttribute('viewBox', `0 0 ${viewBoxWidth} ${viewBoxHeight}`);
+                gameCanvas.setAttribute('viewBox', `0 0 ${viewBoxWidth} ${viewBoxHeight}`);
+            }
+
+            // Call this function on window resize and initial load
+            window.addEventListener('resize', setDynamicViewBox);
+            window.addEventListener('DOMContentLoaded', setDynamicViewBox);
+            function refresh(){
+                socket.emit('player_move', { player_id: playerId, direction: 'ping' });
+            }
+            refresh();
+            function drawSmiley(x, y, color, docFrag) {
+                const smileyGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+
+                // Draw the eyes
+                ['1', '2'].forEach((eyeNumber, index) => {
+                    const eye = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    eye.setAttribute("cx", x + (gridSize / 4) + (index * (gridSize / 2)));
+                    eye.setAttribute("cy", y + (gridSize / 3)+ 15);
+                    eye.setAttribute("r", gridSize / 15);
+                    eye.setAttribute("fill", color);
+                    smileyGroup.appendChild(eye);
+                });
+
+                // Draw the mouth
+                const mouth = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                mouth.setAttribute("d", `M ${x + (gridSize / 4)} ${y + (gridSize / 2) + 16} q ${gridSize / 4} ${gridSize / 9} ${gridSize / 2} 0`);
+                mouth.setAttribute("fill", "none");
+                mouth.setAttribute("stroke", color);
+                mouth.setAttribute("stroke-width", "6"); // Setting a thicker stroke
+                smileyGroup.appendChild(mouth);
+                docFrag.appendChild(smileyGroup);
+            }
+            function drawPlayers(data) {
+                // Clear previous rectangles
+                svgCanvas.innerHTML = '';
+                let docFrag = document.createDocumentFragment();
+                const squares = data.squares
+                for (const square in squares) {
+                    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                    rect.setAttribute("x", squares[square].x * gridSize);
+                    rect.setAttribute("y", squares[square].y * gridSize);
+                    rect.setAttribute("width", gridSize);
+                    rect.setAttribute("height", gridSize);
+                    rect.setAttribute("fill", squares[square].color);
+                    docFrag.appendChild(rect);
+                }
+                const players = data.players
+                for (const player in players) {
+                    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                    rect.setAttribute("x", players[player].x * gridSize);
+                    rect.setAttribute("y", players[player].y * gridSize);
+                    rect.setAttribute("width", gridSize);
+                    rect.setAttribute("height", gridSize);
+                    rect.setAttribute("fill", players[player].color);
+                    docFrag.appendChild(rect);
+                    drawSmiley(players[player].x * gridSize, players[player].y * gridSize, players[player].face_color, docFrag);
+                }
+                updateViewBox(data.players[playerId].x, data.players[playerId].y);
+                svgCanvas.appendChild(docFrag);
+            }
+            
+                function updateViewBox(playerX, playerY) {
+                    const gameCanvas = document.getElementById('gameCanvas');
+                    const gridCanvas = document.getElementById('gridCanvas');
+                    
+                    const viewBoxWidth = Math.max(window.innerWidth, window.innerHeight); // Using the max to maintain aspect ratio
+                    const viewBoxHeight = Math.max(window.innerWidth, window.innerHeight); // Using the max to maintain aspect ratio
+
+                    // Calculate new viewBox values based on the player's position and grid size
+                    const newViewBoxX = (playerX * gridSize) + (gridSize / 2) - (viewBoxWidth / 2);
+                    const newViewBoxY = (playerY * gridSize) + (gridSize / 2) - (viewBoxHeight / 2);
+
+                    // Set the new viewBox values for both the game and grid canvases
+                    gameCanvas.setAttribute('viewBox', `${newViewBoxX} ${newViewBoxY} ${viewBoxWidth} ${viewBoxHeight}`);
+                    gridCanvas.setAttribute('viewBox', `${newViewBoxX} ${newViewBoxY} ${viewBoxWidth} ${viewBoxHeight}`);
+                }
+            // function updateColorPicker(data) {
+            //     document.getElementById('colorPicker').value = data.players[playerId].color;
+            // };
+
+
+            socket.on('connect', function() {
+                console.log('Connected to the server.');
+                socket.emit('after_connect', {player_id: playerId});
+            });
+            socket.emit('get_player_color', { player_id: playerId });
+            socket.on('set_player_color', function(data) {
+            document.getElementById('colorPicker').value = data.color;
+            });
+
+            socket.on('update_positions', drawPlayers);
+            let lastMoveTime = 0;
+            const moveInterval = 20; // 1000ms (1 second) between each allowed move
+
+            function canMove() {
+                const currentTime = new Date().getTime();
+                if (currentTime - lastMoveTime >= moveInterval) {
+                    lastMoveTime = currentTime;
+                    return true;
+                } else {
+                    return false;
+                }
+            };
+                colorPicker.addEventListener('input', function(event) {
+                    var selectedColor = event.target.value; // Getting the selected color
+                    socket.emit('color_change', { player_id: playerId, color: selectedColor }); // Emitting the color_change event
+                });
+
+                window.addEventListener('keydown', function (event) {
+                let direction = False;
+                
+                switch (event.code) {
+                    case 'KeyW':
+                    case 'ArrowUp':
+                        direction = 'w';
+                        break;
+                    case 'KeyA':
+                    case 'ArrowLeft':
+                        direction = 'a';
+                        break;
+                    case 'KeyS':
+                    case 'ArrowDown':
+                        direction = 's';
+                        break;
+                    case 'KeyD':
+                    case 'ArrowRight':
+                        direction = 'd';
+                        break;
+                    case 'KeyR':
+                    case 'ArrowRight':
+                        direction = 'r';
+                        break;
+                }
+                
+                if (direction && canMove()) {
+                    socket.emit('player_move', { player_id: playerId, direction: direction });
+                }
+
+                if (event.code === 'Space') {
+                    socket.emit('color_square', { player_id: playerId });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
+
