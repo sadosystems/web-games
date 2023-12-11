@@ -68,8 +68,9 @@ I have a feeling I am just using websockets completely wrong, and truthfully, I 
 
 however many hours later and guess what. shits working... real well. it turned out to be three main problems and I was wayyyy overthinking shit
 problem 1: I was sending too much data, every single time the player moved I sent the data for all the colors of the grid, when I actually just need to send that once when they first connect, then send just the color of the pixed they are moving off of when they move
-problem 2: Input buffering. I needed to write a little loop that makes sure a given command to the server is completed before the next one can even register, with this in light I rewrote the movement stuff. 
+problem 2: Input buffering. I needed to write a little loop that makes sure a given command to the server is completed before the next one can even register, with this in mind I rewrote the movement stuff. 
 problem 3: I was not using eventlets, I am not gonna question it but apparently this made a huge difference, whatever Im happy. 
 problem 3.A: maybe switching to html5 canvas helped? honestly though it probably didnt change shit. Oh well! you live and learn. now the very best way to store the color data would be like a single hex pair 00 - FF
 
+made some progress
 
