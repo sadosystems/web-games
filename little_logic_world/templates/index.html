@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Little Grid World</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.socket.io/4.0.0/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/msgpack5@4.2.1/dist/msgpack5.min.js"></script>
+</head>
+<body>
+    <div class="background-div"></div> 
+    <div id="gameCanvasDiv" class="game-canvas-div">
+    <canvas id="gameCanvas" class="game-canvas"></canvas>
+    </div>
+    <div id ="pickerDiv" class="circle-container">
+        <div id ="trace" class="circle"></div>
+        <div id ="void" class="circle"></div>
+        <div id ="input" class="circle"></div>
+    </div>    
+    <div id="cords_cont" class="cords-container">
+        <p id="cords" class="cordsclass">0x0 Undefined</p>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
