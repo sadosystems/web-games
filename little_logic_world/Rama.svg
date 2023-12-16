@@ -1,0 +1,14 @@
+<svg id="title" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 294.33 183.29">
+    <defs>
+        <style>
+            .cls-1 {
+                font-size: 122.64px;
+                font-family: 'IBMPlexMono-Light', 'IBM Plex Mono';
+                font-weight: 300;
+                fill: white; /* Set text color to white */
+            }
+        </style>
+    </defs>
+    <text x="-3.67" y="-3.45"/>
+    <text class="cls-1" transform="translate(0 104.12)">Rama</text>
+</svg>

@@ -37,12 +37,12 @@ html, body {
     top: 10px;
     right: 10px;
     z-index: 1000;
-    background-color: #37424f;
-    border: 1px solid #252b32;
+    background-color: #293038;
+    border: 1px solid #171b20;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
     padding: 4px;
-    max-width: 300px;
+    max-width: 500px;
     box-sizing: border-box;
     transition: box-shadow 0.3s ease, transform 0.3s ease;
     display: flex; /* This enables Flexbox */
@@ -56,22 +56,49 @@ html, body {
     border-radius: 50%;  /* This makes it round */
     background-color: rgb(255, 217, 0); /* Circle color */
     margin: 5px; 
-    transition: box-shadow 0.3s ease, transform 0.3s ease;
-    
+    transition: box-shadow 0.3s ease, transform 0.3s;
+    display: flex; /* Use flexbox for alignment */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    font-size: 16px; /* Adjust the font size as needed */
+    text-align: center; /* Ensure text is centered */
+    font-family: 'IBM Plex Mono', monospace; /* Use IBM Plex Mono or fallback to monospace */
+    font-weight: 1000; /* for Thin */
+    color: rgba(255, 255, 255, 0.7); /* White color with 0.5 alpha */
+
 }
 .circle:hover {
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
     transform: translateY(-2px); 
     cursor: pointer;
+    color: rgba(255, 255, 255, 1); /* White color with 0.5 alpha */
 }
 #trace {
-    background-color: rgb(59, 52, 5); /* Color for the 'trace' circle */
+    background-color: rgb(67, 78, 91); 
 }
 #void {
-    background-color: rgb(9, 25, 46); /* Color for the 'trace' circle */
+    background-color: rgb(9, 25, 46); 
 }
-#input {
-    background-color: rgb(207, 197, 128); /* Color for the 'trace' circle */
+#power {
+    background-color: rgb(145, 154, 31); 
+}
+#read {
+    background-color: rgb(70, 91, 161); 
+}
+#write {
+    background-color: rgb(151, 59, 57); 
+}
+#and {
+    background-color: rgb(168, 112, 33); 
+}
+#or {
+    background-color: rgb(101, 142, 36); 
+}
+#nand {
+    background-color: rgb(128, 81, 121); 
+}
+#xor {
+    background-color: rgb(65, 46, 109); 
 }
 .color-picker-container {
     z-index: 1000; 
@@ -93,7 +120,7 @@ html, body {
     transform: translateY(-2px); 
 }
 
-    .color-picker {
+.color-picker {
     appearance: none;
     -webkit-appearance: none;
     width: 35px;
@@ -159,9 +186,18 @@ html, body {
 }
 .cordsclass {
     margin: 0;
-    font-size: 12px;
+    font-size: 16px;
     font-family: 'Courier New', 'Lucida Console', Monaco, Consolas, monospace;
     font-weight: bold;
+    text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.6);
+}
+.titleclass {
+    margin: 0;
+    font-size: 100px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 100; /* for Thin */
+    text-shadow: 0px 0px 21px rgba(0, 0, 0, 0.33);
+    transform: translateY(-16px); /* Moves the element 10px upwards */
 }
 @keyframes flashRed {
     0% { border-color: red; }
@@ -170,4 +206,16 @@ html, body {
 .flash-red {
     animation: flashRed 1s linear 0s 1;
     border: 3px solid transparent;
+}
+
+.title-container {
+    position: fixed;
+    top: 0px;
+    left: 10px;
+    z-index: 1000; 
+    max-width: 250px;
+
+    padding: 5px;
+    border-radius: 5px;
+    color: rgb(222, 222, 216);
 }

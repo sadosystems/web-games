@@ -1,9 +1,9 @@
 import json
 from PIL import Image
 
-color_table = {"#000000":0x0, # void
-               "#00ff00":0x1, # trace
-               "#ff0000":0xA} # logic high
+color_table = {"#000000":"00", # void
+               "#00ff00":"T0", # trace
+               "#ff0000":"P1"} # logic high
 
 def get_hex_color(pixel):
     return '#{:02x}{:02x}{:02x}'.format(pixel[0], pixel[1], pixel[2])
@@ -27,7 +27,7 @@ def process_image(image_path, output_json_path):
             id = color_to_id(pixels[x, y])
             data.append(id)
 
-    assert len(data) == 20 * 20, "The image size must be 1004 * 1004 pixels with the border."
+    assert len(data) == 40 * 40, "The image size must be 1004 * 1004 pixels with the border."
 
     with open(output_json_path, 'w') as json_file:
         json.dump(data, json_file, indent=4)

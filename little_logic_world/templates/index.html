@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Little Grid World</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@100;200&display=swap" rel="stylesheet">
     <script src="https://cdn.socket.io/4.0.0/socket.io.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/msgpack5@4.2.1/dist/msgpack5.min.js"></script>
 </head>
@@ -14,12 +15,21 @@
     <canvas id="gameCanvas" class="game-canvas"></canvas>
     </div>
     <div id ="pickerDiv" class="circle-container">
-        <div id ="trace" class="circle"></div>
-        <div id ="void" class="circle"></div>
-        <div id ="input" class="circle"></div>
+        <div id ="trace" class="circle">T</div>
+        <div id ="void" class="circle">V</div>
+        <div id ="power" class="circle">P</div>
+        <div id ="read" class="circle">R</div>
+        <div id ="write" class="circle">W</div>
+        <div id ="and" class="circle">A</div>
+        <div id ="or" class="circle">O</div>
+        <div id ="nand" class="circle">N</div>
+        <div id ="xor" class="circle">X</div>
     </div>    
     <div id="cords_cont" class="cords-container">
-        <p id="cords" class="cordsclass">0x0 Undefined</p>
+        <p id="cords" class="cordsclass">0x0</p>
+    </div>
+    <div id="title" class="title-container">
+        <p id="something_else" class="titleclass">Rama</p>
     </div>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>

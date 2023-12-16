@@ -178,6 +178,15 @@ def color_square_click(data):
         socketio.emit('update_local_squares', {'color': color, 
                                             'x':x, 
                                             'y':y})
+        
+@socketio.on('ping')
+def ping():
+    index = cords_to_index(0, 0)
+    with grid_lock:
+        color = colored_squares[index]
+        save_json(colored_squares, 'data/data.json')
+
+
 @socketio.on('connect')
 def handle_connect():
     socketio.emit('ask_for_player_id')

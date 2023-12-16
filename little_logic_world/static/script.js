@@ -1,4 +1,5 @@
 // this is the first js I have ever written I am aware this is an ugly mess
+// why are you even looking at it??? nosy
 document.addEventListener("DOMContentLoaded", function () {
   const socket = io.connect(location.origin);
   const gridCount = 20;
@@ -12,7 +13,13 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   const trace_circle = document.getElementById("trace");
   const void_circle = document.getElementById("void");
-  const input_circle = document.getElementById("input");
+  const power_circle = document.getElementById("power");
+  const read_circle = document.getElementById("read");
+  const write_circle = document.getElementById("write");
+  const and_circle = document.getElementById("and");
+  const or_circle = document.getElementById("or");
+  const nand_circle = document.getElementById("nand");
+  const xor_circle = document.getElementById("xor");
 
   // Setup canvas stuff Setting the canvas width and height to occupy full window size
   const canvasDiv = document.getElementById("gameCanvasDiv");
@@ -84,32 +91,58 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function updateGrid(x, y, color_id) {
     let color = idToColor(color_id);
+    if (color_id === "00" && (x + y) % 2 !== 0) {
+      color = "030e1c"
+    }
+
     var rgbaColor = hexToRGBA(color);
     var pixelData = new Uint8ClampedArray(rgbaColor);
     var imageData = new ImageData(pixelData, 1, 1);
     ctx.putImageData(imageData, x, y);
   }
-  function lighten_color(x, y) {
-    let imageData = ctx.getImageData(x, y, 1, 1);
-    let data = imageData.data;
-    let increaseFactor = 10;
-    data[0] = Math.min(255, data[0] + increaseFactor); // Red
-    data[1] = Math.min(255, data[1] + increaseFactor); // Green
-    data[2] = Math.min(255, data[2] + increaseFactor); // Blue
-    ctx.putImageData(imageData, x, y);
-  }
+
   const idToColorTable = {
-    0x0: "#09192e", // void
-    0x1: "#3b3405", // trace
-    0x2: "#a6951f", // trace
-    0xA: "#cfc580",  // logic high
-    0xF: "#5f6a78"
+    "00": "#07172b", // void
+    "T0": "#162b40", // trace
+    "T1": "#243f57",
+    "P1": "#9eb038", // power
+    "R0": "#1f2e5e",
+    "R1": "#465ba1",
+    "W0": "#571e1d",
+    "W1": "#993937",
+    "A0": "#5c3601", // and
+    "A1": "#9c7003", 
+    "O0": "#274207", // or
+    "O1": "#607a1c", 
+    "N0": "#4d224d", // nand
+    "N1": "#945c8c", 
+    "X0": "#34215e", // xor
+    "X1": "#573f8a", 
   };
-
+  const idToNameTable = {
+    "00": "Void", // void
+    "T0": "Trace", // trace
+    "T1": "Trace",
+    "P1": "Power Source", // power
+    "R0": "Read",
+    "R1": "Read",
+    "W0": "Write",
+    "W1": "Write",
+    "A0": "And", // and
+    "A1": "And", 
+    "O0": "Or", // or
+    "O1": "Or", 
+    "N0": "Nand", // nand
+    "N1": "Nand", 
+    "X0": "Xor", // xor
+    "X1": "Xor", 
+  };
   function idToColor(id) {
-      return idToColorTable[id] || "#000000"; // Default to "#000000" if id is not found
+      return idToColorTable[id] || "#000000";
   }
-
+  function idToName(id) {
+    return idToNameTable[id] || "?";
+}
   function drawPixels(squares) {
     for (let i = 0; i < gridCount; i++) {
       for (let j = 0; j < gridCount; j++) {
@@ -142,28 +175,50 @@ document.addEventListener("DOMContentLoaded", function () {
     globalY = y;
 
     var new_cords = `${x},${y}:`; 
-    lighten_color(x, y)
+    // lighten_color(x, y)
 
     if (!cordTracker.textContent.includes(new_cords)) {
       // console.log("Mouse position: " + x + "," + y);
       cordTracker.textContent = `${x},${y}: `;
-      // socket.emit("fetch_blame", { x: x, y: y });
+      index = x + y * gridCount;
+      id = local_squares[index]
+      the_name = idToName(id)
+      cordTracker.textContent += the_name;
     }
+    
   });
-var picked_color = 1
+var picked_color = "T0"
   canvasDiv.addEventListener("click", function(evt) {
-    console.log("Mouse click position: " + globalX + "," + globalY);
     socket.emit("color_square_click", { color: picked_color, x:globalX, y:globalY});
+    socket.emit("tick");
 });
 
 void_circle.addEventListener("click", function(evt) {
-  picked_color = 0
+  picked_color = "00"
 });
 trace_circle.addEventListener("click", function(evt) {
-  picked_color = 0
+  picked_color = "T0"
 });
-input_circle.addEventListener("click", function(evt) {
-  picked_color = 10
+power_circle.addEventListener("click", function(evt) {
+  picked_color = "P1"
+});
+read_circle.addEventListener("click", function(evt) {
+  picked_color = "R0"
+});
+write_circle.addEventListener("click", function(evt) {
+  picked_color = "W0"
+});
+and_circle.addEventListener("click", function(evt) {
+  picked_color = "A0"
+});
+or_circle.addEventListener("click", function(evt) {
+  picked_color = "O0"
+});
+nand_circle.addEventListener("click", function(evt) {
+  picked_color = "N0"
+});
+xor_circle.addEventListener("click", function(evt) {
+  picked_color = "X0"
 });
 
   socket.on("return_blame", function (data) {
@@ -190,6 +245,10 @@ input_circle.addEventListener("click", function(evt) {
       called = true;
       initFaces(local_players);
     };
+  }
+
+  function my_ping() {
+    socket.emit("ping");
   }
 
   const oneTimeInitFaces = createOneTimeInitFaces();
@@ -266,6 +325,8 @@ input_circle.addEventListener("click", function(evt) {
   }
 
   function tryMove() {
+    // console.log("ping")
+    // socket.emit("ping")
     if (canMove() && direction && !waitingForMoveCompletion) {
       waitingForMoveCompletion = true;
       socket.emit(
@@ -289,9 +350,6 @@ input_circle.addEventListener("click", function(evt) {
 
 
   socket.on("update_positions", drawPlayers);
-
-  // username stuff
-
 
   window.addEventListener("keydown", function (event) {
     if (event.repeat) {
@@ -351,4 +409,6 @@ input_circle.addEventListener("click", function(evt) {
   });
   // basically polling... smh
   setInterval(tryMove, moveInterval);
+  setInterval(my_ping, 500);
+
 });
