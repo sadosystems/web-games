@@ -32,29 +32,23 @@ html, body {
     image-rendering: pixelated;
     }
 .color-picker-container {
-    /* position: absolute;
-    top: 10px; 
-    left: 2%;  */
-    /* transform: translateX(-50%); */
     z-index: 1000; 
     position: absolute;
     top: 10px;
     left: 10px;
     z-index: 1000;
-    /* Styling */
-    background-color: #37424f; /* Light background */
-    border: 1px solid #252b32; /* Subtle border */
-    border-radius: 8px; /* Rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
-    padding: 4px; /* Spacing inside the container */
-    max-width: 300px; /* Maximum width */
-    box-sizing: border-box; /* Include padding and border in the width */
+    background-color: #37424f;
+    border: 1px solid #252b32;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    padding: 4px;
+    max-width: 300px;
+    box-sizing: border-box;
     transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 .color-picker-container:hover {
-    /* Slightly larger shadow on hover for an interactive feel */
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
-    transform: translateY(-2px); /* Small movement for interaction feedback */
+    transform: translateY(-2px); 
 }
 
     .color-picker {
@@ -86,69 +80,52 @@ html, body {
     bottom: 10px;
     right: 10px;
     z-index: 1000;
-
-    /* Styling */
-    background-color: #37424f; /* Light background */
-    border: 1px solid #252b32; /* Subtle border */
-    border-radius: 8px; /* Rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
-    padding: 10px; /* Spacing inside the container */
-    max-width: 300px; /* Maximum width */
-    box-sizing: border-box; /* Include padding and border in the width */
-
-    /* Font Styling */
-    font-family: 'Arial', sans-serif; /* Modern, sans-serif font */
-    color: #333; /* Dark grey color for text */
-
-    /* Smooth transition for hover effects or other interactions */
+    background-color: #37424f;
+    border: 1px solid #252b32;
+    border-radius: 8px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    padding: 10px; 
+    max-width: 300px;
+    box-sizing: border-box; 
+    font-family: 'Arial', sans-serif;
+    color: #333; 
     transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
-
 .username-container:hover {
-    /* Slightly larger shadow on hover for an interactive feel */
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
-    transform: translateY(-2px); /* Small movement for interaction feedback */
+    transform: translateY(-2px); 
 }
-
-/* Style the input element within the container */
 .username-container input[type="text"] {
-    width: 100%; /* Full width of the container */
-    padding: 2px; /* Comfortable text entry */
-    border: 1px solid #ccc; /* Subtle border */
-    border-radius: 4px; /* Slightly rounded corners for the input field */
-    box-sizing: border-box; /* Include padding and border in the input width */
+    width: 100%;
+    padding: 2px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
     font-family: 'Courier New', 'Lucida Console', Monaco, Consolas, monospace;
-    font-weight: bold; /* Make the font bold */
+    font-weight: bold;
 }
 .cords-container {
-    position: fixed; /* Fixed position relative to the viewport */
-    bottom: 10px; /* 10px from the bottom */
-    left: 10px; /* 10px from the left */
-    z-index: 1000; /* Ensures it stays on top of other elements */
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    z-index: 1000; 
 
-    /* Additional styling for the container */
-    padding: 5px; /* Some padding around the text */
-    background-color: rgba(8, 9, 20, 0.2); /* Semi-transparent background */
-    border-radius: 5px; /* Optional: Rounded corners */
-    color: rgba(255, 255, 255, 0.75); /* Text color */
-    /* Adjust width, padding, etc., as needed */
+    padding: 5px;
+    background-color: rgba(8, 9, 20, 0.2);
+    border-radius: 5px;
+    color: rgba(255, 255, 255, 0.75);
 }
-
 .cordsclass {
-    /* Style your paragraph text here */
-    margin: 0; /* Remove default margin */
-    font-size: 12px; /* Adjust the font size as needed */
+    margin: 0;
+    font-size: 12px;
     font-family: 'Courier New', 'Lucida Console', Monaco, Consolas, monospace;
-    font-weight: bold; /* Make the font bold */
-    /* Add other styling as needed */
+    font-weight: bold;
 }
-
 @keyframes flashRed {
     0% { border-color: red; }
     100% { border-color: transparent; }
 }
-
 .flash-red {
-    animation: flashRed 1s linear 0s 1; /* Run the animation only once */
-    border: 3px solid transparent; /* Set initial border to maintain consistent element size */
+    animation: flashRed 1s linear 0s 1;
+    border: 3px solid transparent;
 }
