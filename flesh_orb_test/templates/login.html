@@ -1,0 +1,29 @@
+{% extends 'base.html' %} {% block content %}
+<form method="post" class="buttons">
+  <h3>Log in to Club Flesh Orb</h3>
+  <div>
+    <label>Name:</label>
+    <input
+      type="text"
+      placeholder="name"
+      name="name"
+      value="{{name}}"
+    />
+    <label>password:</label>
+    <input
+      type="password"
+      placeholder="password"
+      name="password"
+      value=""
+    />
+  </div>
+  <div class="join">
+    <button type="submit" name="join_room" value="plaza">Enter</button>
+  </div>
+  {% if error %}
+  <ul>
+    <li>{{error}}</li>
+  </ul>
+  {% endif %}
+</form>
+{% endblock %}
