@@ -1,0 +1,23 @@
+{% extends 'base.html' %} {% block content %}
+  <div class="credentials">
+    <h3>Create account</h3>
+    <form method="post" class="credentials">
+      {{ form.hidden_tag() }}
+      {{ form.username }}
+      <div class="password-field">
+        {{ form.password }}
+        <button type="button" onclick="togglePasswordVisibility()" class="toggle-password">
+          <sl-icon name="eye" id="toggleIcon"></sl-icon></sl-icon>
+        </button>
+      </div>
+      {{ form.submit }}
+    </form>
+    <a href="{{url_for('login')}}">Sign in</a>
+    {% if error %}
+    <ul>
+      <li>{{error}}</li>
+    </ul>
+  {% endif %}
+  </div>
+<script src="{{ url_for('static', filename='js/register.js') }}"></script>
+{% endblock %}

@@ -1,29 +1,23 @@
 {% extends 'base.html' %} {% block content %}
-<form method="post" class="buttons">
-  <h3>Log in to Club Flesh Orb</h3>
-  <div>
-    <label>Name:</label>
-    <input
-      type="text"
-      placeholder="name"
-      name="name"
-      value="{{name}}"
-    />
-    <label>password:</label>
-    <input
-      type="password"
-      placeholder="password"
-      name="password"
-      value=""
-    />
-  </div>
-  <div class="join">
-    <button type="submit" name="join_room" value="plaza">Enter</button>
-  </div>
+<div class="credentials">
+  <h3>Sign in</h3>
+  <form method="post" class="credentials">
+    {{ form.hidden_tag() }}
+    {{ form.username }}
+    <div class="password-field">
+      {{ form.password }}
+      <button type="button" onclick="togglePasswordVisibility()" class="toggle-password">
+        <sl-icon name="eye" id="toggleIcon"></sl-icon>
+      </button>
+    </div>
+    {{ form.submit }}
+  </form>
+  <a href="{{url_for('register')}}">create account</a>
   {% if error %}
-  <ul>
-    <li>{{error}}</li>
-  </ul>
+    <ul>
+      <li>{{error}}</li>
+    </ul>
   {% endif %}
-</form>
+</div>
+<script src="{{ url_for('static', filename='js/register.js') }}"></script>
 {% endblock %}
