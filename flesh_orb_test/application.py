@@ -2,25 +2,36 @@ import os
 from dataclasses import dataclass, field
 from enum import Enum
 
-import eventlet
-eventlet.monkey_patch()
-from flask import Flask, Request, render_template, request, session, redirect, url_for
+# import eventlet
+# eventlet.monkey_patch()
+from flask import Flask, Request, render_template, request, session, redirect, url_for, current_app
 from flask_socketio import join_room, leave_room, send, SocketIO
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
+from flask_mail import Mail, Message
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField, EmailField
 from wtforms.validators import InputRequired, Length, ValidationError
+from itsdangerous import URLSafeTimedSerializer
 from flask_bcrypt import Bcrypt
 from sqlalchemy import Enum
 
 from room_helpers import handle_room_stuff, rooms
 from user_helpers import Elevation
+from verify_email import create_verification_email
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "hjhjsdahhds"
+secret_key = "hjhjsdahhds"
+app.config["SECRET_KEY"] = secret_key
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///users.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Your mail server
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+app.config['MAIL_USERNAME'] = 'william.matthew.murray@gmail.com'
+app.config['MAIL_PASSWORD'] = 'fbma yxxe xazg ajhs'
+mail = Mail(app)
 
 socketio = SocketIO(app, async_mode='eventlet') 
 bcrypt = Bcrypt(app)
@@ -36,16 +47,23 @@ def load_user(user_id):
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(70), nullable=False, unique=True)
     username = db.Column(db.String(20), nullable=False, unique=True)
     password = db.Column(db.String(80), nullable=False)
     elevation = db.Column(db.Enum(Elevation), default=Elevation.GUEST)
     money = db.Column(db.Float, default=0)
 class RegisterForm(FlaskForm):
+    email = EmailField(validators=[
+                           InputRequired(), Length(min=3, max=70)], 
+                           render_kw={"placeholder": "Email"})
+    
     username = StringField(validators=[
-                           InputRequired(), Length(min=3, max=20)], render_kw={"placeholder": "Username"})
+                           InputRequired(), Length(min=3, max=20)], 
+                           render_kw={"placeholder": "Username"})
 
     password = PasswordField(validators=[
-                             InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "Password"})
+                             InputRequired(), Length(min=8, max=20)], 
+                             render_kw={"placeholder": "Password"})
 
     submit = SubmitField('Register')
 
@@ -85,19 +103,46 @@ def login():
             
     return render_template('login.html', form=form, error=error)
 
+def generate_verification_link(username):
+    serializer = URLSafeTimedSerializer(secret_key)
+    token = serializer.dumps(username, salt='email-verify')
+    verification_url = url_for('verify_email', token=token, _external=True)
+    return verification_url
+
+@app.route('/verify_email/<token>')
+def verify_email(token):
+    serializer = URLSafeTimedSerializer(secret_key)
+    try:
+        username = serializer.loads(token, salt='email-verify', max_age=3600)
+        user: User = User.query.filter_by(username=username).first() 
+        if user:
+            user.elevation = Elevation.USER 
+            db.session.commit() 
+            session['name'] = username
+        return redirect(url_for('login'))
+    except:
+        return redirect(url_for('login'))
+
 @app.route("/register", methods=["POST", "GET"])
 def register():
     form = RegisterForm()
     error = None
     if form.validate_on_submit():
         name = form.username.data
+        email = form.email.data
         existing_user_username = User.query.filter_by(username=name).first()
+        existing_user_email = User.query.filter_by(email=email).first()
         if existing_user_username:
             error = 'Username already taken.'
+        elif existing_user_email:
+            error = 'Account already exists with that email'
         else:
             session['name'] = name
             hashed_password = bcrypt.generate_password_hash(form.password.data)
-            new_user = User(username=name, password=hashed_password)
+            new_user = User(username=name, password=hashed_password, email=email)
+            verification_url = generate_verification_link(name)
+            msg = create_verification_email(name, email, verification_url)
+            mail.send(msg)
             db.session.add(new_user)
             db.session.commit()
             return redirect(url_for('login'))
